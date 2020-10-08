@@ -3,6 +3,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import ytdl from 'ytdl-core';
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -26,22 +27,46 @@ bot.onText(/\/скачай (.+)/, async (msg, match) => {
   const fromId = msg.from.id; // Получаем ID отправителя
   console.log(msg.from);
   const resp = match[1]; // Получаем текст после /echo
+  const responce = await fetch('https://ru.savefrom.net/7/savefrom.php', {
+    method: 'POST',
+    headers: {
+      Authorization: 'api_token',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  // const responce = await fetch(ssurl, {
+  //   method: 'GET', // *GET, POST, PUT, DELETE, etc.
+  //   mode: 'cors', // no-cors, *cors, same-origin
+  //   cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+  //   credentials: 'same-origin', // include, *same-origin, omit
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     // 'Content-Type': 'application/x-www-form-urlencoded',
+  //   },
+  //   redirect: 'follow', // manual, *follow, error
+  //   referrerPolicy: 'no-referrer', // no-referrer, *client
+  // });
+  const ssurlnew = await responce.text();
+
+  fs.writeFile('responce.txt', ssurlnew, (err) => {
+    if (err) throw err;
+  });
+
   const video = ytdl(resp, {
     filter: (format) => format.container === 'mp4',
   });
+
   const videoInfo = await ytdl.getInfo(resp, {
     filter: (format) => format.container === 'mp4',
   });
 
   await bot.sendMessage(fromId, `Привет ${msg.from.username}`);
   bot.sendMessage(fromId, 'Скачиваю файл, погоди чуть-чуть...');
-  console.log('Download started');
-  console.log(`filename: ${videoInfo.videoDetails.title}.mp4`);
-  // bot.sendMessage(fromId, "filename: " + videoInfo.videoDetails.title + ".mp4");
   const pipe = video.pipe(
     fs.createWriteStream(`./${videoInfo.videoDetails.title}.mp4`),
   );
-  // console.log(pipe);
+
   const check = setInterval(async () => {
     if (pipe._writableState.finished === true) {
       if (pipe.bytesWritten < 52428800) {
@@ -65,14 +90,12 @@ function deleteVideo(name) {
   setTimeout(() => {
     fs.unlink(`./${name}.mp4`, (err) => {
       if (err) throw err;
-      console.log(`./${name}.mp4 was deleted`);
     });
   }, 1000 * 60 * 2);
 }
 
 bot.onText(/\/help/, async (msg, match) => {
   const fromId = msg.from.id;
-  console.log(msg.from);
   bot.sendMessage(
     fromId,
     'Смотри, братиш\nПишешь /скачай <тут ссылка на твой видос> и радуешься жизни, но я не могу отправлять тебе видео больше 50мб((',
@@ -81,19 +104,7 @@ bot.onText(/\/help/, async (msg, match) => {
 
 bot.onText(/\/avtor/, async (msg, match) => {
   const fromId = msg.from.id;
-  console.log(msg.from);
   bot.sendPhoto(fromId, './vk.jpg');
   bot.sendPhoto(fromId, './inst.jpg');
   bot.sendMessage(fromId, 'vk.com/tixon337\n@tixon337');
 });
-
-// bot.on("message", function (msg) {
-//   let fromId = msg.from.id;
-// });
-// bot.on("polling_error", (err) => console.log(err));
-// // Простая команда без параметров
-// bot.on('message', function (msg) {
-//     var chatId = msg.chat.id; // Берем ID чата (не отправителя)
-//     // Фотография может быть: путь к файлу, поток (stream) или параметр file_id
-//     var photo = 'cats.png'; // в папке с ботом должен быть файл "cats.png"
-//     bot.sendPhoto(chatId, photo, { caption: 'Милые котята' });
