@@ -3,7 +3,6 @@ import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import ytdl from 'ytdl-core';
 import dotenv from 'dotenv';
-import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -27,31 +26,6 @@ bot.onText(/\/скачай (.+)/, async (msg, match) => {
   const fromId = msg.from.id; // Получаем ID отправителя
   console.log(msg.from);
   const resp = match[1]; // Получаем текст после /echo
-  const responce = await fetch('https://ru.savefrom.net/7/savefrom.php', {
-    method: 'POST',
-    headers: {
-      Authorization: 'api_token',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  // const responce = await fetch(ssurl, {
-  //   method: 'GET', // *GET, POST, PUT, DELETE, etc.
-  //   mode: 'cors', // no-cors, *cors, same-origin
-  //   cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-  //   credentials: 'same-origin', // include, *same-origin, omit
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     // 'Content-Type': 'application/x-www-form-urlencoded',
-  //   },
-  //   redirect: 'follow', // manual, *follow, error
-  //   referrerPolicy: 'no-referrer', // no-referrer, *client
-  // });
-  const ssurlnew = await responce.text();
-
-  fs.writeFile('responce.txt', ssurlnew, (err) => {
-    if (err) throw err;
-  });
 
   const video = ytdl(resp, {
     filter: (format) => format.container === 'mp4',
