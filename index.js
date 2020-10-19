@@ -46,6 +46,7 @@ bot.onText(/\/скачай (.+)/, async (msg, match) => {
       if (pipe.bytesWritten < 52428800) {
         bot.sendMessage(fromId, 'Опа, я смог, кидаю видос');
         bot.sendVideo(fromId, `./${videoInfo.videoDetails.title}.mp4`);
+        bot.sendMessage(fromId, videoInfo.formats[0].url);
         deleteVideo(videoInfo.videoDetails.title);
         clearInterval(check);
       } else {
