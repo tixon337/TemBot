@@ -8,13 +8,19 @@ dotenv.config();
 
 // Устанавливаем токен, который выдавал нам бот
 const token = process.env.TOKEN;
-// Включить опрос сервера. Бот должен обращаться к серверу Telegram, чтобы получать актуальную информацию
-// Подробнее: https://core.telegram.org/bots/api#getupdates
+
 const bot = new TelegramBot(token, { polling: true });
+
+function deleteVideo(name) {
+  setTimeout(() => {
+    fs.unlink(`./${name}.mp4`, (err) => {
+      if (err) throw err;
+    });
+  }, 1000 * 60 * 2);
+}
 
 bot.on('new_chat_members', (msg, match) => {
   const fromId = msg.from.id;
-  console.log(msg.from);
   bot.sendMessage(fromId, `Привет ${msg.from.username}`);
   bot.sendMessage(
     fromId,
@@ -22,11 +28,7 @@ bot.on('new_chat_members', (msg, match) => {
   );
 });
 
-bot.onText(/\/скачай (.+)/, async (msg, match) => {
-  const fromId = msg.from.id; // Получаем ID отправителя
-  console.log(msg.from);
-  const resp = match[1]; // Получаем текст после /echo
-
+async function videoDown(resp, fromId) {
   const video = ytdl(resp, {
     filter: (format) => format.container === 'mp4',
   });
@@ -35,8 +37,6 @@ bot.onText(/\/скачай (.+)/, async (msg, match) => {
     filter: (format) => format.container === 'mp4',
   });
 
-  await bot.sendMessage(fromId, `Привет ${msg.from.username}`);
-  bot.sendMessage(fromId, 'Скачиваю файл, погоди чуть-чуть...');
   const pipe = video.pipe(
     fs.createWriteStream(`./${videoInfo.videoDetails.title}.mp4`),
   );
@@ -59,15 +59,15 @@ bot.onText(/\/скачай (.+)/, async (msg, match) => {
       }
     }
   }, 100);
-});
-
-function deleteVideo(name) {
-  setTimeout(() => {
-    fs.unlink(`./${name}.mp4`, (err) => {
-      if (err) throw err;
-    });
-  }, 1000 * 60 * 2);
 }
+
+bot.onText(/\/скачай (.+)/, async (msg, match) => {
+  const fromId = msg.from.id; // Получаем ID отправителя
+  const resp = match[1]; // Получаем текст после /echo
+  videoDown(resp, fromId);
+  await bot.sendMessage(fromId, `Привет ${msg.from.username}`);
+  bot.sendMessage(fromId, 'Скачиваю файл, погоди чуть-чуть...');
+});
 
 bot.onText(/\/help/, async (msg, match) => {
   const fromId = msg.from.id;
