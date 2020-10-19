@@ -19,15 +19,6 @@ function deleteVideo(name) {
   }, 1000 * 60 * 2);
 }
 
-bot.on('new_chat_members', (msg, match) => {
-  const fromId = msg.from.id;
-  bot.sendMessage(fromId, `Привет ${msg.from.username}`);
-  bot.sendMessage(
-    fromId,
-    'Смотри, братиш\nПишешь /скачай <тут ссылка на твой видос> и радуешься жизни, но я не могу отправлять тебе видео больше 50мб((',
-  );
-});
-
 async function videoDown(resp, fromId) {
   const video = ytdl(resp, {
     filter: (format) => format.container === 'mp4',
@@ -61,15 +52,24 @@ async function videoDown(resp, fromId) {
   }, 100);
 }
 
-bot.onText(/\/скачай (.+)/, async (msg, match) => {
+bot.on('new_chat_members', (msg, match) => {
+  const fromId = msg.from.id;
+  bot.sendMessage(fromId, `Привет ${msg.from.username}`);
+  bot.sendMessage(
+    fromId,
+    'Смотри, братиш\nПишешь /скачай <тут ссылка на твой видос> и радуешься жизни, но я не могу отправлять тебе видео больше 50мб((',
+  );
+});
+
+bot.onText(/\/скачай (.+)/, (msg, match) => {
   const fromId = msg.from.id; // Получаем ID отправителя
   const resp = match[1]; // Получаем текст после /echo
   videoDown(resp, fromId);
-  await bot.sendMessage(fromId, `Привет ${msg.from.username}`);
+  bot.sendMessage(fromId, `Привет ${msg.from.username}`);
   bot.sendMessage(fromId, 'Скачиваю файл, погоди чуть-чуть...');
 });
 
-bot.onText(/\/help/, async (msg, match) => {
+bot.onText(/\/help/, (msg, match) => {
   const fromId = msg.from.id;
   bot.sendMessage(
     fromId,
@@ -77,7 +77,7 @@ bot.onText(/\/help/, async (msg, match) => {
   );
 });
 
-bot.onText(/\/avtor/, async (msg, match) => {
+bot.onText(/\/avtor/, (msg, match) => {
   const fromId = msg.from.id;
   bot.sendPhoto(fromId, './vk.jpg');
   bot.sendPhoto(fromId, './inst.jpg');
