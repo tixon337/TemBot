@@ -23,7 +23,7 @@
     "dotenv": "^8.2.0",
     "fetch": "^1.1.0",
     "fs": "0.0.1-security",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "node-telegram-bot-api": "^0.50.0",
     "youtube-dl": "^3.0.2",
     "ytdl-core": "^3.2.0"
